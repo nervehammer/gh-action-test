@@ -1,0 +1,20 @@
+on:
+    workflow_dispatch:
+    schedule:
+      - cron: '0 * * * *'
+
+jobs:
+    sample-job:
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout code
+          uses: actions/checkout@v4
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
+          with: 
+            fetch-depth: 0
+        - name: do something really
+          run: echo "did something"
+        - name: Step that might be skipped
+          if: env.SKIP_STEP != 'true'
+          run: echo "This step is not skipped."
