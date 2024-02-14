@@ -16,5 +16,5 @@ jobs:
         - name: do something really
           run: echo "did something"
         - name: Step that might be skipped
-          if: ${{ vars.SKIP_FIRST_RUN_DIFF }} != 'true'
+          if: ${{ vars.SKIP_FIRST_RUN_DIFF != 'true' }}
           run: echo "This step is not skipped."
