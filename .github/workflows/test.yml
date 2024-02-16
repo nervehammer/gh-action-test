@@ -1,20 +1,44 @@
+name: Testing
 on:
     workflow_dispatch:
     schedule:
       - cron: '0 * * * *'
 
 jobs:
-    sample-job:
-      runs-on: ubuntu-latest
-      steps:
-        - name: checkout code
-          uses: actions/checkout@v4
-          env:
-            GITHUB_TOKEN: ${{ github.token }}
-          with: 
-            fetch-depth: 0
-        - name: do something really
-          run: echo "did something"
-        - name: Step that might be skipped
-          if: ${{ vars.SKIP_FIRST_RUN_DIFF != 'true' }}
-          run: echo "This step is not skipped."
+  handle-dns-record:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Create New DNS Record File Sample
+        run: |
+          cat << EOF > dns-record.json
+          {
+            "example": "This is a sample DNS record",
+            "records": [
+              {
+                "type": "A",
+                "name": "example.com",
+                "value": "192.0.2.1",
+                "ttl": 3600
+              }
+            ]
+          }
+          EOF
+      - name: Attempt to Download Old DNS Record
+        id: download-old-dns
+        uses: actions/download-artifact@v2
+        with:
+          name: dns-record-old
+        continue-on-error: true
+      - name: Skip Diff, if old file is not present
+        if: steps.download-old-dns.outcome == 'success'
+        run: |
+          echo "Yesterday's DNS record exists. Proceeding with comparison."
+          diff dns-record.json dns-record-old.json > dns-diff.txt
+          echo "such tech, much wow"
+      - name: Upload new DNS Record as old for Next Run
+        uses: actions/upload-artifact@v2
+        with:
+          name: dns-record-old
+          path: dns-record.json
