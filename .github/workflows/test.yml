@@ -27,10 +27,12 @@ jobs:
           EOF
       - name: Attempt to Download Old DNS Record
         id: download-old-dns
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: dns-record-old
         continue-on-error: true
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Skip Diff, if old file is not present
         if: steps.download-old-dns.outcome == 'success'
         run: |
@@ -38,7 +40,9 @@ jobs:
           diff dns-record.json dns-record-old.json > dns-diff.txt
           echo "such tech, much wow"
       - name: Upload new DNS Record as old for Next Run
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dns-record-old
-          path: dns-record.json
+          path: dns-record-old.json
+          overwrite: true
+        
