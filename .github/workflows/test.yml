@@ -39,7 +39,9 @@ jobs:
           echo "Yesterday's DNS record exists. Proceeding with comparison."
           diff dns-record.json dns-record-old.json > dns-diff.txt
           echo "such tech, much wow"
-      - name: Upload new DNS Record as old for Next Run
+      - name: Rename new record file to old
+        run: mv dns-record dns-record-old.json
+      - name: upload old DNS Record for Next Run
         uses: actions/upload-artifact@v4
         with:
           name: dns-record-old
